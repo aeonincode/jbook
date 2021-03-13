@@ -19,14 +19,23 @@ const App = () => {
     startService();
   }, []);
 
-  const onClick = () => {
+  const onClick = async () => {
     //console.log(input);
     // if that value is undefine or null just return early
     if (!ref.current) {
       return;
     }
 
-    console.log(ref.current);
+    //console.log(ref.current);
+    // Transpiring
+    const result = await ref.current.transform(input, {
+      loader: 'jsx',
+      target: 'es2015'
+    });
+
+    //console.log(result);
+    // update the code  piece of state that will cause our component to rerender
+    setCode(result.code);
   };
 
   return (
