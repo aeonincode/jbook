@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild-wasm';
 import { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { unpkgPathPlugin } from './plugins/unpkg-path-plugin';
 
 const App = () => {
   const ref = useRef<any>();
@@ -9,33 +10,29 @@ const App = () => {
 
   const startService = async () => {
     ref.current = await esbuild.startService({
-      // configuration object
       worker: true,
-      wasmURL: '/esbuild.wasm'
+      wasmURL: '/esbuild.wasm',
     });
-    //console.log(service);
   };
   useEffect(() => {
     startService();
   }, []);
 
   const onClick = async () => {
-    //console.log(input);
-    // if that value is undefine or null just return early
     if (!ref.current) {
       return;
     }
 
-    //console.log(ref.current);
-    // Transpiring
-    const result = await ref.current.transform(input, {
-      loader: 'jsx',
-      target: 'es2015'
+    const result = await ref.current.build({
+      entryPoints: ['index.js'],
+      bundle: true,
+      write: false,
+      plugins: [unpkgPathPlugin()],
     });
 
-    //console.log(result);
-    // update the code  piece of state that will cause our component to rerender
-    setCode(result.code);
+    // console.log(result);
+
+    setCode(result.outputFiles[0].text);
   };
 
   return (
